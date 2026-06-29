@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Harris Rd | Tax Blueprint Dashboard</title>
+  <style>
+    :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-200: #bfdbfe;
+      --blue-700: #1d4ed8;
+      --indigo-50: #eef2ff;
+      --indigo-100: #e0e7ff;
+      --indigo-200: #c7d2fe;
+      --indigo-500: #6366f1;
+      --indigo-600: #4f46e5;
+      --indigo-700: #4338ca;
+      --emerald-50: #ecfdf5;
+      --emerald-100: #d1fae5;
+      --emerald-200: #a7f3d0;
+      --emerald-400: #34d399;
+      --emerald-500: #10b981;
+      --emerald-700: #047857;
+      --yellow-50: #fefce8;
+      --yellow-100: #fef9c3;
+      --yellow-200: #fef08a;
+      --yellow-300: #fde047;
+      --yellow-400: #facc15;
+      --yellow-500: #eab308;
+      --yellow-800: #854d0e;
+      --yellow-900: #713f12;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--slate-50);
+      color: var(--slate-800);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+      padding-bottom: 80px;
+    }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .hero {
+      background: linear-gradient(90deg, #1d4ed8, #3730a3);
+      color: white;
+      padding: 48px 16px 32px;
+      box-shadow: 0 4px 12px rgba(15,23,42,.18);
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.05; letter-spacing: -0.03em; }
+    .subtitle { color: #dbeafe; font-size: 1.08rem; max-width: 740px; margin: 0 0 28px; }
+    .progress-card {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 18px;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .progress-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .label { color: #bfdbfe; font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; display: flex; align-items: center; gap: 8px; }
+    .percent { font-size: 2.15rem; font-weight: 800; margin-top: 4px; }
+    .progress-track { width: 100%; height: 10px; background: rgba(255,255,255,.22); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: var(--emerald-400); border-radius: 999px; transition: width .35s ease; }
+    .progress-count { color: #bfdbfe; font-size: .8rem; margin-top: 8px; }
+    .hero-actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+    .primary-btn, .secondary-btn, .small-btn, .ghost-btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: .15s ease;
+    }
+    .primary-btn { background: var(--indigo-500); color: white; border: 1px solid rgba(255,255,255,.2); }
+    .primary-btn:hover { background: #818cf8; }
+    .secondary-btn { background: rgba(255,255,255,.12); color: white; border: 1px solid rgba(255,255,255,.22); }
+    .secondary-btn:hover { background: rgba(255,255,255,.18); }
+    main { padding: 32px 16px 0; }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .toolbar h2 { margin: 0; font-size: 1.25rem; }
+    .toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ghost-btn { background: white; color: var(--slate-600); border: 1px solid var(--slate-200); padding: 9px 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05); }
+    .ghost-btn:hover { background: var(--slate-100); color: var(--slate-800); }
+    .weeks { display: grid; gap: 20px; }
+    .week-card {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(15,23,42,.07);
+    }
+    .week-header {
+      width: 100%;
+      border: 0;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px;
+      text-align: left;
+      color: inherit;
+    }
+    .week-header:hover { background: var(--slate-50); }
+    .week-header.complete { background: var(--emerald-50); }
+    .week-left { display: flex; align-items: center; gap: 14px; }
+    .week-icon {
+      width: 42px; height: 42px; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--blue-100); color: var(--blue-700); flex: 0 0 auto;
+      font-size: 1.25rem;
+    }
+    .week-icon.complete { background: var(--emerald-200); color: var(--emerald-700); }
+    .week-title { margin: 0; font-size: 1.18rem; font-weight: 800; }
+    .week-sub { margin: 4px 0 0; color: var(--slate-500); font-size: .9rem; }
+    .task-list { background: rgba(248,250,252,.6); border-top: 1px solid var(--slate-100); padding: 14px; display: grid; gap: 12px; }
+    .task-card {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 2px 5px rgba(15,23,42,.06);
+    }
+    .task-card.complete { border-color: var(--emerald-200); box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+    .task-row { display: flex; align-items: flex-start; gap: 14px; }
+    .check-btn {
+      border: 0;
+      background: transparent;
+      padding: 2px;
+      color: var(--slate-300);
+      line-height: 1;
+      flex: 0 0 auto;
+      font-size: 1.8rem;
+    }
+    .check-btn:hover { color: var(--blue-700); }
+    .task-card.complete .check-btn { color: var(--emerald-500); }
+    .task-main { flex: 1; min-width: 0; }
+    .task-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .task-title { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--slate-800); }
+    .task-card.complete .task-title { color: var(--slate-500); text-decoration: line-through; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; background: var(--blue-100); color: var(--blue-700); padding: 4px 9px; border-radius: 999px; font-size: .78rem; font-weight: 700; }
+    .action { color: var(--slate-600); font-size: .92rem; margin: 0 0 14px; }
+    .task-card.complete .action { color: var(--slate-400); }
+    .action strong { color: var(--slate-700); }
+    .task-buttons { display: flex; gap: 9px; flex-wrap: wrap; }
+    .small-btn { padding: 9px 12px; font-size: .88rem; border: 1px solid var(--slate-200); background: white; color: var(--slate-600); box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+    .small-btn:hover { background: var(--slate-100); color: var(--slate-800); }
+    .small-btn.note-has-content { background: var(--yellow-100); border-color: var(--yellow-200); color: var(--yellow-800); }
+    .small-btn.explain { background: var(--indigo-50); border-color: var(--indigo-200); color: var(--indigo-700); }
+    .note-box {
+      margin-top: 14px;
+      background: var(--yellow-50);
+      border: 1px solid var(--yellow-200);
+      border-radius: 13px;
+      padding: 14px;
+    }
+    .note-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--yellow-800); font-weight: 800; font-size: .9rem; }
+    .note-box textarea {
+      width: 100%; min-height: 86px; resize: vertical; background: white;
+      border: 1px solid var(--yellow-300); border-radius: 10px; padding: 10px;
+      color: var(--slate-700); outline: none;
+    }
+    .note-box textarea:focus { box-shadow: 0 0 0 3px rgba(250,204,21,.35); }
+    .note-actions { margin-top: 8px; display: flex; justify-content: flex-end; }
+    .save-btn { background: var(--yellow-400); color: var(--yellow-900); border: 0; border-radius: 10px; padding: 9px 14px; font-weight: 800; }
+    .save-btn:hover { background: var(--yellow-500); }
+    .explain-box {
+      margin-top: 14px;
+      background: rgba(238,242,255,.85);
+      border: 1px solid var(--indigo-100);
+      border-radius: 13px;
+      padding: 14px;
+      color: #312e81;
+      position: relative;
+    }
+    .explain-box h4 { margin: 0 0 6px; color: #3730a3; font-size: .9rem; display: flex; gap: 7px; align-items: center; }
+    .explain-box p { margin: 0; font-size: .92rem; }
+    .close-small { background: transparent; border: 0; color: var(--slate-400); font-size: 1.2rem; line-height: 1; padding: 2px 5px; }
+    .close-small:hover { color: var(--slate-700); }
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55);
+      display: none; align-items: center; justify-content: center;
+      padding: 16px; z-index: 50;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      width: min(720px, 100%); max-height: 90vh; display: flex; flex-direction: column;
+      background: white; border-radius: 22px; overflow: hidden; box-shadow: 0 22px 55px rgba(15,23,42,.28);
+    }
+    .modal-head {
+      background: linear-gradient(90deg, var(--indigo-600), var(--blue-700));
+      color: white; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .modal-title-row { display: flex; align-items: center; gap: 12px; }
+    .modal-title { margin: 0; font-size: 1.25rem; font-weight: 800; }
+    .modal-sub { margin: 2px 0 0; color: #c7d2fe; font-size: .85rem; }
+    .modal-body { padding: 20px; background: var(--slate-50); overflow-y: auto; }
+    .modal textarea { width: 100%; min-height: 340px; resize: vertical; padding: 14px; border: 1px solid var(--slate-200); border-radius: 14px; outline: none; color: var(--slate-700); line-height: 1.5; }
+    .modal textarea:focus { box-shadow: 0 0 0 3px rgba(79,70,229,.22); border-color: var(--indigo-500); }
+    .modal-foot { padding: 16px 20px; background: white; border-top: 1px solid var(--slate-100); display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+    .copy-btn { background: var(--indigo-600); color: white; border: 0; border-radius: 12px; padding: 11px 15px; font-weight: 800; }
+    .copy-btn:hover { background: var(--indigo-700); }
+    .plain-btn { background: transparent; color: var(--slate-600); border: 0; border-radius: 12px; padding: 11px 15px; font-weight: 800; }
+    .plain-btn:hover { background: var(--slate-100); }
+    .toast {
+      position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+      background: #0f172a; color: white; border-radius: 999px; padding: 10px 16px; font-weight: 700; font-size: .9rem;
+      opacity: 0; pointer-events: none; transition: .2s ease; z-index: 100;
+    }
+    .toast.show { opacity: 1; bottom: 28px; }
+    @media (min-width: 720px) {
+      .hero-actions { grid-template-columns: 1fr auto; }
+      .task-card { padding: 20px; }
+      .week-header { padding: 22px 24px; }
+    }
+    @media print {
+      .hero-actions, .toolbar, .task-buttons, .check-btn, .modal-backdrop, .toast { display: none !important; }
+      .hero { background: white !important; color: #111827 !important; box-shadow: none; padding: 20px 0; }
+      .subtitle, .label, .progress-count { color: #334155 !important; }
+      .progress-card { border: 1px solid #cbd5e1; color: #111827; background: white; }
+      .task-list { display: block; }
+      .task-card { break-inside: avoid; margin-bottom: 10px; box-shadow: none; }
+      .week-card { break-inside: avoid; box-shadow: none; }
+      body { background: white; padding-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="title-row">
+        <div style="font-size:2rem;">🏠</div>
+        <h1>Project “Harris Rd”</h1>
+      </div>
+      <p class="subtitle">The 30-Minutes-a-Day Tax Blueprint. You do not need a perfect spreadsheet. The CPA mainly needs clean PDFs and clear notes.</p>
+
+      <section class="progress-card" aria-label="progress summary">
+        <div class="progress-header">
+          <div>
+            <div class="label">🏆 Total Progress</div>
+            <div class="percent" id="progressPercent">0%</div>
+          </div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-count" id="progressCount">0 of 18 tasks complete</div>
+        <div class="hero-actions">
+          <button class="primary-btn" id="draftEmailBtn">✨ Draft CPA Handoff Email</button>
+          <button class="secondary-btn" id="printBtn">🖨️ Print Checklist</button>
+        </div>
+      </section>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="toolbar">
+      <h2>Weekly Checklist</h2>
+      <div class="toolbar-actions">
+        <button class="ghost-btn" id="expandAllBtn">Expand All</button>
+        <button class="ghost-btn" id="collapseAllBtn">Collapse All</button>
+        <button class="ghost-btn" id="resetBtn">Reset Progress</button>
+      </div>
+    </div>
+    <div class="weeks" id="weeks"></div>
+  </main>
+
+  <div class="modal-backdrop" id="emailModal" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title-row">
+          <div style="background:rgba(255,255,255,.2); padding:8px; border-radius:10px;">✉️</div>
+          <div>
+            <h2 class="modal-title" id="emailModalTitle">CPA Handoff Email</h2>
+            <p class="modal-sub">Generated from your checked tasks and notes.</p>
+          </div>
+        </div>
+        <button class="close-small" id="modalCloseTop" style="color:white; font-size:1.6rem;">×</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="emailDraft"></textarea>
+      </div>
+      <div class="modal-foot">
+        <button class="plain-btn" id="modalCloseBtn">Close</button>
+        <button class="copy-btn" id="copyEmailBtn">Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied</div>
+
+  <script>
+    const storageKey = 'harrisRdTasks_html';
+    const expandedKey = 'harrisRdExpandedWeeks_html';
+
+    const defaultTasks = [
+      { id: 'w1-1', week: 1, weekTitle: 'Insurance Payouts & Income', day: 'Monday', title: 'The Rebuild Payout', duration: '30 Mins', action: 'Log into the insurance portal or open the main claim folder. Find the settlement page showing the final payout for the Structure/Dwelling. Save it as a PDF.', completed: false, notes: '' },
+      { id: 'w1-2', week: 1, weekTitle: 'Insurance Payouts & Income', day: 'Tuesday', title: 'The Rent Replacement Payout', duration: '30 Mins', action: 'Find the page in that same insurance paperwork showing the Loss of Rent / Fair Rental Value / Loss of Use payouts. Save it as a separate PDF.', completed: false, notes: '' },
+      { id: 'w1-3', week: 1, weekTitle: 'Insurance Payouts & Income', day: 'Wednesday', title: 'The 1099 Hunt', duration: '30 Mins', action: 'Check our digital tax folders or insurance messages to see if they issued a Form 1099-MISC for that rental income replacement. If yes, save it. If no, skip it.', completed: false, notes: '' },
+      { id: 'w1-4', week: 1, weekTitle: 'Insurance Payouts & Income', day: 'Thursday', title: 'Bank Deposit Double-Check', duration: '30 Mins', action: 'Look at our bank statements from the payout months just to jot down the exact total dollar amounts received so the CPA can verify them.', completed: false, notes: '' },
+      { id: 'w1-5', week: 1, weekTitle: 'Insurance Payouts & Income', day: 'Friday', title: 'Weekend Warm-up', duration: '30 Mins', action: 'Stop here. The insurance half is 100% complete. Take the weekend off.', completed: false, notes: '' },
+      { id: 'w2-1', week: 2, weekTitle: 'The 2025 Rebuild Receipts', day: 'Monday', title: 'The Builder Contract', duration: '30 Mins', action: 'Find the main contract signed with our general contractor for the rebuild. Save it to the desktop.', completed: false, notes: '' },
+      { id: 'w2-2', week: 2, weekTitle: 'The 2025 Rebuild Receipts', day: 'Tuesday', title: 'The Progress Invoices (Part 1)', duration: '30 Mins', action: 'Grab just the first 2 or 3 draw requests/invoices the builder sent during construction. Save them to a folder.', completed: false, notes: '' },
+      { id: 'w2-3', week: 2, weekTitle: 'The 2025 Rebuild Receipts', day: 'Wednesday', title: 'The Progress Invoices (Part 2)', duration: '30 Mins', action: 'Grab the remaining builder invoices and the final bill showing the project was paid in full.', completed: false, notes: '' },
+      { id: 'w2-4', week: 2, weekTitle: 'The 2025 Rebuild Receipts', day: 'Thursday', title: 'The Out-of-Pocket Extras', duration: '30 Mins', action: 'Look for any separate receipts or invoices for city permits, architectural drawings, or dumpsters/demolition.', completed: false, notes: '' },
+      { id: 'w2-5', week: 2, weekTitle: 'The 2025 Rebuild Receipts', day: 'Friday', title: 'The Certificate of Occupancy', duration: '30 Mins', action: 'Pull the official Certificate of Occupancy from the city or builder proving the house was legally completed before the tenant moved in.', completed: false, notes: '' },
+      { id: 'w3-1', week: 3, weekTitle: 'Pre-Fire Renovations', day: 'Monday', title: 'The Contractor Contracts', duration: '30 Mins', action: 'Search your email inbox or computer files for keywords like Roof, Flooring, or the names of the contractors used before the fire. Save the main quotes or contracts.', completed: false, notes: '' },
+      { id: 'w3-2', week: 3, weekTitle: 'Pre-Fire Renovations', day: 'Tuesday', title: 'Final Renovation Bills', duration: '30 Mins', action: 'Find the final itemized bills or invoices sent by those contractors showing the renovation work was completed.', completed: false, notes: '' },
+      { id: 'w3-3', week: 3, weekTitle: 'Pre-Fire Renovations', day: 'Wednesday', title: 'Proof of Payment', duration: '30 Mins', action: 'Check your digital banking app or credit card statements around the time of those renovations. Save a screenshot or PDF showing the payments cleared.', completed: false, notes: '' },
+      { id: 'w3-4', week: 3, weekTitle: 'Pre-Fire Renovations', day: 'Thursday', title: 'Store Receipts', duration: '30 Mins', action: 'If materials were purchased directly, log into Lowe\'s or Home Depot rewards accounts online and download receipts from those project months. Focus only on big items, not tiny receipts.', completed: false, notes: '' },
+      { id: 'w3-5', week: 3, weekTitle: 'Pre-Fire Renovations', day: 'Friday', title: 'Group & Label', duration: '30 Mins', action: 'Put all pre-fire files into one digital folder and name it: 07_Pre_Fire_Renovations.pdf.', completed: false, notes: '' },
+      { id: 'w4-1', week: 4, weekTitle: 'Digital Handoff & Quote', day: 'Monday', title: 'Final File Polish', duration: '30 Mins', action: 'Put all completed PDFs on the desktop and make sure they are named cleanly, such as 01_2026_Retrospective_Appraisal.pdf, 02_2006_Historical_Appraisal.pdf, and 06_Rebuild_Invoices.pdf.', completed: false, notes: '' },
+      { id: 'w4-2', week: 4, weekTitle: 'Digital Handoff & Quote', day: 'Tuesday', title: 'The First Call', duration: '30 Mins', action: 'Call the Wilmington CPA firm and read the quick phone script to ask for their secure portal link.', completed: false, notes: '' },
+      { id: 'w4-3', week: 4, weekTitle: 'Digital Handoff & Quote', day: 'Wednesday', title: 'Drag & Drop', duration: '30 Mins', action: 'Upload the clean digital folder into their secure link, then wait for the combined personal tax and basis reconstruction flat-fee quote.', completed: false, notes: '' }
+    ];
+
+    let tasks = loadTasks();
+    let expandedWeeks = loadExpandedWeeks();
+    let activeNoteId = null;
+    let visibleExplanations = {};
+
+    function loadTasks() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        return saved ? JSON.parse(saved) : structuredClone(defaultTasks);
+      } catch (err) {
+        return structuredClone(defaultTasks);
+      }
+    }
+
+    function saveTasks() {
+      localStorage.setItem(storageKey, JSON.stringify(tasks));
+    }
+
+    function loadExpandedWeeks() {
+      try {
+        const saved = localStorage.getItem(expandedKey);
+        return saved ? JSON.parse(saved) : [1];
+      } catch (err) {
+        return [1];
+      }
+    }
+
+    function saveExpandedWeeks() {
+      localStorage.setItem(expandedKey, JSON.stringify(expandedWeeks));
+    }
+
+    function groupByWeek() {
+      return tasks.reduce((acc, task) => {
+        if (!acc[task.week]) acc[task.week] = [];
+        acc[task.week].push(task);
+        return acc;
+      }, {});
+    }
+
+    function escapeHTML(value) {
+      return String(value || '').replace(/[&<>"]/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[match]));
+    }
+
+    function render() {
+      updateProgress();
+      const weeksEl = document.getElementById('weeks');
+      const grouped = groupByWeek();
+      weeksEl.innerHTML = Object.entries(grouped).map(([weekNum, weekTasks]) => renderWeek(Number(weekNum), weekTasks)).join('');
+      bindTaskEvents();
+    }
+
+    function renderWeek(weekNum, weekTasks) {
+      const isExpanded = expandedWeeks.includes(weekNum);
+      const weekCompleted = weekTasks.every(task => task.completed);
+      const weekTitle = weekTasks[0].weekTitle;
+      const taskHtml = isExpanded ? `<div class="task-list">${weekTasks.map(renderTask).join('')}</div>` : '';
+      return `
+        <section class="week-card">
+          <button class="week-header ${weekCompleted ? 'complete' : ''}" data-toggle-week="${weekNum}">
+            <div class="week-left">
+              <div class="week-icon ${weekCompleted ? 'complete' : ''}">${weekCompleted ? '✅' : '📅'}</div>
+              <div>
+                <h3 class="week-title">WEEK ${weekNum}: ${escapeHTML(weekTitle)}</h3>
+                <p class="week-sub">${weekTasks.filter(t => t.completed).length} of ${weekTasks.length} tasks completed</p>
+              </div>
+            </div>
+            <div style="font-size:1.4rem;color:var(--slate-400);">${isExpanded ? '⌃' : '⌄'}</div>
+          </button>
+          ${taskHtml}
+        </section>
+      `;
+    }
+
+    function renderTask(task) {
+      const hasNotes = Boolean(task.notes && task.notes.trim());
+      const noteBox = activeNoteId === task.id ? `
+        <div class="note-box">
+          <div class="note-head">
+            <span>📄 Task Notes & Outcomes</span>
+            <button class="close-small" data-close-note="${task.id}">×</button>
+          </div>
+          <textarea data-note-input="${task.id}" placeholder="Example: Downloaded as 01_Settlement_Payout.pdf. Total was $154,200.">${escapeHTML(task.notes)}</textarea>
+          <div class="note-actions"><button class="save-btn" data-save-note="${task.id}">Save Notes</button></div>
+        </div>
+      ` : '';
+      const explanation = visibleExplanations[task.id] ? `
+        <div class="explain-box">
+          <button class="close-small" data-close-explain="${task.id}" style="position:absolute;top:8px;right:8px;">×</button>
+          <h4>✨ Simple Explanation</h4>
+          <p>${escapeHTML(visibleExplanations[task.id])}</p>
+        </div>
+      ` : '';
+      return `
+        <article class="task-card ${task.completed ? 'complete' : ''}">
+          <div class="task-row">
+            <button class="check-btn" data-toggle-task="${task.id}" aria-label="Toggle ${escapeHTML(task.title)}">${task.completed ? '✅' : '○'}</button>
+            <div class="task-main">
+              <div class="task-top">
+                <h4 class="task-title">${escapeHTML(task.day)}: ${escapeHTML(task.title)}</h4>
+                <span class="badge">🕒 ${escapeHTML(task.duration)}</span>
+              </div>
+              <p class="action"><strong>Action:</strong> ${escapeHTML(task.action)}</p>
+              ${activeNoteId === task.id ? '' : `
+                <div class="task-buttons">
+                  <button class="small-btn ${hasNotes ? 'note-has-content' : ''}" data-open-note="${task.id}">💬 ${hasNotes ? 'View/Edit Notes' : 'Add Note'}</button>
+                  <button class="small-btn explain" data-explain-task="${task.id}">✨ Explain Task</button>
+                </div>
+              `}
+              ${noteBox}
+              ${explanation}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function bindTaskEvents() {
+      document.querySelectorAll('[data-toggle-week]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const week = Number(btn.dataset.toggleWeek);
+          expandedWeeks = expandedWeeks.includes(week) ? expandedWeeks.filter(w => w !== week) : [...expandedWeeks, week];
+          saveExpandedWeeks();
+          render();
+        });
+      });
+
+      document.querySelectorAll('[data-toggle-task]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.toggleTask;
+          tasks = tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
+          saveTasks();
+          render();
+        });
+      });
+
+      document.querySelectorAll('[data-open-note]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeNoteId = btn.dataset.openNote;
+          render();
+        });
+      });
+
+      document.querySelectorAll('[data-close-note], [data-save-note]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeNoteId = null;
+          saveTasks();
+          render();
+        });
+      });
+
+      document.querySelectorAll('[data-note-input]').forEach(input => {
+        input.addEventListener('input', () => {
+          const id = input.dataset.noteInput;
+          tasks = tasks.map(task => task.id === id ? { ...task, notes: input.value } : task);
+          saveTasks();
+          updateProgress();
+        });
+      });
+
+      document.querySelectorAll('[data-explain-task]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.explainTask;
+          const task = tasks.find(item => item.id === id);
+          visibleExplanations[id] = explainTask(task);
+          render();
+        });
+      });
+
+      document.querySelectorAll('[data-close-explain]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          delete visibleExplanations[btn.dataset.closeExplain];
+          render();
+        });
+      });
+    }
+
+    function updateProgress() {
+      const completed = tasks.filter(task => task.completed).length;
+      const total = tasks.length;
+      const percent = total ? Math.round((completed / total) * 100) : 0;
+      document.getElementById('progressPercent').textContent = `${percent}%`;
+      document.getElementById('progressFill').style.width = `${percent}%`;
+      document.getElementById('progressCount').textContent = `${completed} of ${total} tasks complete`;
+    }
+
+    function explainTask(task) {
+      if (!task) return '';
+      const explanations = {
+        'w1-1': 'This helps the CPA separate money paid to rebuild the property from other insurance payments. The settlement page is the cleanest proof of what the insurance company paid for the structure.',
+        'w1-2': 'Loss of rent or fair rental value payments may be treated differently than rebuild money. Saving this separately makes it easier for the CPA to identify possible rental income replacement.',
+        'w1-3': 'A 1099 form tells the IRS that a payment was reported under your tax ID. If one was issued, your CPA needs it so the return matches IRS records.',
+        'w1-4': 'Bank deposits help confirm the actual dollars received. This gives the CPA a backup record in case the insurance paperwork is hard to follow.',
+        'w1-5': 'This is a stopping point. The goal is to avoid burnout and keep the project moving in small steps.',
+        'w2-1': 'The builder contract shows the scope of work and who performed the rebuild. It helps support the cost basis work for the rebuilt rental property.',
+        'w2-2': 'Progress invoices show how the rebuild costs were paid over time. They help prove the total rebuild cost.',
+        'w2-3': 'The final invoice helps show the project was completed and paid. This is important support for the total rebuild cost.',
+        'w2-4': 'Some rebuild costs may not be on the main contractor invoice. Permits, plans, demolition, and dumpster costs may still support your basis if they relate to the rebuild.',
+        'w2-5': 'The Certificate of Occupancy helps prove when the property was legally ready to use again. That date can matter for rental and depreciation timing.',
+        'w3-1': 'Pre-fire improvements may have increased the property basis before the fire. Contracts or quotes help show what work was done.',
+        'w3-2': 'Final bills are stronger proof than estimates. They show the work was actually completed and what it cost.',
+        'w3-3': 'Payment proof supports that the renovation costs were actually paid. This helps the CPA avoid relying only on invoices.',
+        'w3-4': 'Large material purchases may count as part of the improvement cost. Focus on big items so you do not waste time chasing small receipts.',
+        'w3-5': 'Grouping files helps the CPA review everything faster. A clean folder or PDF can reduce back-and-forth questions.',
+        'w4-1': 'Clean file names make your documents easier to review. This also helps the CPA connect each PDF to the right part of the tax project.',
+        'w4-2': 'The secure portal keeps tax documents safer than regular email. The call is mainly to ask how they want the files delivered.',
+        'w4-3': 'This is the final handoff step. After the files are uploaded, the CPA can review the scope and give a quote.'
+      };
+      return explanations[task.id] || `This task gives your CPA clean support for ${task.title}. Save the document or note the result so the CPA can verify it later.`;
+    }
+
+    function draftEmail() {
+      const completedTasks = tasks.filter(task => task.completed);
+      const completedSummary = completedTasks.length
+        ? completedTasks.map(task => `• ${task.title}: ${task.notes && task.notes.trim() ? task.notes.trim() : 'Completed'}`).join('\n')
+        : '• No tasks have been checked off yet. I am still gathering the documents.';
+
+      const uploadedText = completedTasks.length
+        ? 'I have uploaded the related PDFs and notes to your secure portal for review.'
+        : 'I am preparing the related PDFs and notes and wanted to confirm the best secure upload process.';
+
+      return `Hello,\n\nI am reaching out about the Harris Rd rental property tax file and basis reconstruction after the fire and rebuild.\n\n${uploadedText}\n\nHere is a summary of what has been gathered so far:\n\n${completedSummary}\n\nPlease review the documents and let me know your flat-fee quote for handling the combined personal tax preparation and basis reconstruction work.\n\nAlso, please let me know if you need any additional documents or clarification before giving the quote.\n\nThank you,\nChalmes Tarry`;
+    }
+
+    function openEmailModal() {
+      document.getElementById('emailDraft').value = draftEmail();
+      document.getElementById('emailModal').classList.add('open');
+    }
+
+    function closeEmailModal() {
+      document.getElementById('emailModal').classList.remove('open');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    document.getElementById('draftEmailBtn').addEventListener('click', openEmailModal);
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    document.getElementById('modalCloseTop').addEventListener('click', closeEmailModal);
+    document.getElementById('modalCloseBtn').addEventListener('click', closeEmailModal);
+    document.getElementById('emailModal').addEventListener('click', event => {
+      if (event.target.id === 'emailModal') closeEmailModal();
+    });
+    document.getElementById('copyEmailBtn').addEventListener('click', async () => {
+      const text = document.getElementById('emailDraft').value;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Email copied');
+      } catch (err) {
+        document.getElementById('emailDraft').select();
+        document.execCommand('copy');
+        showToast('Email copied');
+      }
+    });
+    document.getElementById('expandAllBtn').addEventListener('click', () => {
+      expandedWeeks = [1, 2, 3, 4];
+      saveExpandedWeeks();
+      render();
+    });
+    document.getElementById('collapseAllBtn').addEventListener('click', () => {
+      expandedWeeks = [];
+      saveExpandedWeeks();
+      render();
+    });
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (!confirm('Reset all checked tasks and notes?')) return;
+      tasks = structuredClone(defaultTasks);
+      activeNoteId = null;
+      visibleExplanations = {};
+      saveTasks();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
